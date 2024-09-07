@@ -11,6 +11,8 @@
 
   position: relative;
 
+  margin-top: 2em;
+
   /* 2 positions are used for spaces */
   width: calc(4 * (60px + 1em) - 1em);
   height: calc((var(--count) + 2) * (60px + 1em) - 1em);
