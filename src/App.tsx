@@ -2,6 +2,8 @@ import './App.css'
 import { useEffect, useState } from 'react';
 import { CorrectState, RowData, RowValueData, RowState } from './Models';
 import { Row } from './Typer';
+import { IsValidInputKey } from './Utils';
+import { LooseScreen } from './LooseScreen';
 
 function RowVal(value : string = '_', state : CorrectState = CorrectState.undefined) : RowValueData
 {
@@ -9,28 +11,33 @@ function RowVal(value : string = '_', state : CorrectState = CorrectState.undefi
 }
 
 // row data is inversed: 1st row is the last row
-const rowData : RowData[] = [
-  {values: [RowVal(), RowVal(), RowVal(), RowVal()], state: RowState.untouched},
-  {values: [RowVal(), RowVal(), RowVal(), RowVal()], state: RowState.untouched},
-  {values: [RowVal(), RowVal(), RowVal(), RowVal()], state: RowState.untouched},
-  {values: [RowVal(), RowVal(), RowVal(), RowVal()], state: RowState.untouched},
-  {values: [RowVal(), RowVal(), RowVal(), RowVal()], state: RowState.typing},
-]
+let rowData : RowData[] = NewRowData();
+
+function NewRowData() : RowData[]
+{
+  return [
+    {values: [RowVal(), RowVal(), RowVal(), RowVal()], state: RowState.untouched},
+    {values: [RowVal(), RowVal(), RowVal(), RowVal()], state: RowState.untouched},
+    {values: [RowVal(), RowVal(), RowVal(), RowVal()], state: RowState.untouched},
+    {values: [RowVal(), RowVal(), RowVal(), RowVal()], state: RowState.untouched},
+    {values: [RowVal(), RowVal(), RowVal(), RowVal()], state: RowState.typing},
+  ]
+}
 
 const debugConstant = "3.141";
 
-function IsValidInputKey(i : string) : boolean
-{
-  if (i == '0' || i == '1' || i == '2' || i == '3' || i == '4' || i == '5' || i == '6' || i == '7' || i == '8' || i == '9') return true;
-  if (i == '.' || i == ',') return true;
-
-  return false;
+enum GameStatus {
+  won,
+  lost,
+  playing
 }
 
 function App() {
 
   // this state is used to force re-render
   const [statesdds, setStatesdds] = useState(0);
+
+  const [gameStatus, setGameStatus] = useState(GameStatus.playing);
 
   const rWrapperCountStyle: React.CSSProperties = { '--count': rowData.length } as any;
 
@@ -39,6 +46,8 @@ function App() {
   let state = [0];
 
   const ValidateRow = (row : RowData) : boolean => {
+
+    console.log(`Validating row: ${row.values.map((value) => value.value)}`);
 
     let valid : boolean = true;
 
@@ -65,21 +74,25 @@ function App() {
 
     while (rowData[cId].state !== RowState.typing) cId -= 1;
 
-    if (ValidateRow(rowData[cId]))
-    {
-      alert("You won!");
-    }
-
     rowData[cId].state = RowState.typed;
 
-    if (cId !== 0)
+    if (ValidateRow(rowData[cId]))
     {
-      rowData[cId - 1].state = RowState.typing;
-    }    
-    else 
-    {
-      alert("You lost! - if you wanna try again, just refresh the page");
+      setGameStatus(GameStatus.won);
     }
+    else
+    {
+      if (cId !== 0)
+      {
+        rowData[cId - 1].state = RowState.typing;
+      }    
+      else 
+      {
+        //alert("You lost! - if you wanna try again, just refresh the page");
+  
+        setGameStatus(GameStatus.lost);
+      }
+    } 
 
     setStatesdds(statesdds + 1);
   }
@@ -136,30 +149,32 @@ function App() {
     };
   }, []);
 
+  const g = gameStatus == GameStatus.playing ? '' : 'game--over';
+
+  const ResetGame = () => {
+    setGameStatus(GameStatus.playing);
+    rowData = NewRowData();
+  }
+
   return (
-    <>
+    <div className={'game ' + g}>
+      {LooseScreen(gameStatus == GameStatus.won, gameStatus == GameStatus.playing, ResetGame)}
       <h1>Constantle</h1>
       <p>It is like wordle, only a bit worse and for mathematical constants</p>
 
       <div className="rows-wrapper" style={rWrapperCountStyle}>
+        {rowData[rowData.length - 1].state === RowState.typing ? <p>Type your constant and hope for the best :)</p> : <> </>}
         {rowData.map((row_, index) => Row(row_, index, rowData.length + 1 - GetRowStyleId(row_, index, state), currentPos) )}
       </div>
-    </>
+    </div>
   )
 }
 
 function GetRowStyleId(row : RowData, id: number, state : any[]) : number
 {
-  if (row.state === RowState.untouched) return id + state[0];
-  if (row.state === RowState.typing) 
-  { 
-    state[0] += 1;
-    return id + state[0]; 
-  }
-  
-  if (row.state === RowState.typed && state[0] === 2) return id + state[0];
+  if (row.state === RowState.untouched || (row.state === RowState.typed && state[0] === 2)) return id + state[0];
 
-  state[0] += 1;
+  state[0] += 1;  
   return id + state[0]; 
 }
 

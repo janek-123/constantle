@@ -88,3 +88,88 @@ h1 + p
   opacity: 0.5;
   margin: 0;
 }
+
+.loose-screen-wrapper
+{
+  position: absolute;
+
+  left: 0;
+  right: 0;
+  top: 0;
+  bottom: 0;
+
+  overflow: hidden;
+
+  /*background-color: rgba(0, 0, 0, 0.25);
+  z-index: 999;*/
+}
+
+.loose-screen > p
+{
+  margin: 0;
+}
+
+.loose-screen__description
+{
+  opacity: .5;
+}
+
+.loose-screen
+{
+  z-index: 999;
+  
+  width: calc(100% - 2 * 1.5em);
+  max-width: 400px;
+  text-align: left;
+
+  position: absolute;
+  top: 50%;
+  left: 150%;
+
+  transform: translate(-50%, -50%);
+
+  /* background-color: #111111; */
+  padding: 0 1.5em 1.5em 1.5em;
+  border-radius: var(--radius);
+
+  transition: left 0.5s;
+}
+
+.loose-screen__header
+{
+  text-align: center;
+  font-size: 1.75rem;
+  margin: 0;
+  margin-bottom: 1em;
+
+  font-weight: 300;
+}
+
+.loose-screen__header > .loose-screen__header__big
+{
+  font-weight: 400;
+
+  color: transparent;
+  background-image: linear-gradient(90deg, var(--blue), var(--green), var(--yellow), var(--red));
+  background-clip: text;
+  width: fit-content;
+  margin: auto;
+
+  font-size: 3.25rem;
+  margin-top: -.9em;
+}
+
+.game
+{
+  transition: margin-left 0.5s;
+}
+
+.game--over
+{
+  margin-left: calc(-100vw - 452px);
+}
+
+.game--over .loose-screen
+{
+  left: 50%;
+}
