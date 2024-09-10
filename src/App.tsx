@@ -4,6 +4,7 @@ import { CorrectState, RowData, RowValueData, RowState } from './Models';
 import { Row } from './Typer';
 import { IsValidInputKey } from './Utils';
 import { LooseScreen } from './LooseScreen';
+import { constants, Constant } from './Constants';
 
 function RowVal(value : string = '_', state : CorrectState = CorrectState.undefined) : RowValueData
 {
@@ -24,7 +25,7 @@ function NewRowData() : RowData[]
   ]
 }
 
-const debugConstant = "3.141";
+let constant : Constant = constants[Math.floor(Math.random() * constants.length)];
 
 enum GameStatus {
   won,
@@ -52,8 +53,8 @@ function App() {
     let valid : boolean = true;
 
     row.values.map((value, index) => {
-      if (value.value == debugConstant[index]) value.state = CorrectState.correct;
-      else if (debugConstant.search(value.value) !== -1) 
+      if (value.value == constant.value[index]) value.state = CorrectState.correct;
+      else if (constant.value.search(value.value) !== -1) 
       {
         value.state = CorrectState.close;
         valid = false;
@@ -88,8 +89,6 @@ function App() {
       }    
       else 
       {
-        //alert("You lost! - if you wanna try again, just refresh the page");
-  
         setGameStatus(GameStatus.lost);
       }
     } 
@@ -154,11 +153,12 @@ function App() {
   const ResetGame = () => {
     setGameStatus(GameStatus.playing);
     rowData = NewRowData();
+    constant = constants[Math.floor(Math.random() * constants.length)];
   }
 
   return (
     <div className={'game ' + g}>
-      {LooseScreen(gameStatus == GameStatus.won, gameStatus == GameStatus.playing, ResetGame)}
+      {LooseScreen(gameStatus == GameStatus.won, gameStatus == GameStatus.playing, ResetGame, constant)}
       <h1>Constantle</h1>
       <p>It is like wordle, only a bit worse and for mathematical constants</p>
 

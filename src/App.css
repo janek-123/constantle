@@ -173,3 +173,10 @@ h1 + p
 {
   left: 50%;
 }
+
+.play-again-button
+{
+  display: block;
+  margin: auto;
+  margin-top: 1em;
+}
