@@ -11,17 +11,32 @@ function RowVal(value : string = '_', state : CorrectState = CorrectState.undefi
   return {value: value, state: state};
 }
 
+// digit count you need to guess
+const length = 4;
+
 // row data is inversed: 1st row is the last row
 let rowData : RowData[] = NewRowData();
+
+function NewRowValues() : RowValueData[]
+{
+  let values : RowValueData[] = [];
+
+  for (let i = 0; i < length; i++)
+  {
+    values.push(RowVal());
+  }
+
+  return values;
+}
 
 function NewRowData() : RowData[]
 {
   return [
-    {values: [RowVal(), RowVal(), RowVal(), RowVal()], state: RowState.untouched},
-    {values: [RowVal(), RowVal(), RowVal(), RowVal()], state: RowState.untouched},
-    {values: [RowVal(), RowVal(), RowVal(), RowVal()], state: RowState.untouched},
-    {values: [RowVal(), RowVal(), RowVal(), RowVal()], state: RowState.untouched},
-    {values: [RowVal(), RowVal(), RowVal(), RowVal()], state: RowState.typing},
+    {values: NewRowValues(), state: RowState.untouched},
+    {values: NewRowValues(), state: RowState.untouched},
+    {values: NewRowValues(), state: RowState.untouched},
+    {values: NewRowValues(), state: RowState.untouched},
+    {values: NewRowValues(), state: RowState.typing},
   ]
 }
 
@@ -33,6 +48,29 @@ enum GameStatus {
   playing
 }
 
+function ValidateRow(row : RowData) : boolean 
+{
+  console.log(`Validating row: ${row.values.map((value) => value.value)}`);
+
+  let valid : boolean = true;
+
+  row.values.map((value, index) => {
+    if (value.value == constant.value[index]) value.state = CorrectState.correct;
+    else if (constant.value.slice(0, length).search(value.value) !== -1) 
+    {
+      value.state = CorrectState.close;
+      valid = false;
+    }
+    else 
+    {
+      value.state = CorrectState.incorrect;
+      valid = false;
+    }
+  });
+
+  return valid;
+}
+
 function App() {
 
   // this state is used to force re-render
@@ -40,34 +78,11 @@ function App() {
 
   const [gameStatus, setGameStatus] = useState(GameStatus.playing);
 
-  const rWrapperCountStyle: React.CSSProperties = { '--count': rowData.length } as any;
+  const rWrapperCountStyle: React.CSSProperties = { '--count': rowData.length, "--widthCount": length } as any;
 
   // 1 means space 1 was added, 2 means both space 1 and space 2 was added
   // I need refference, thus it is wrapped in array
   let state = [0];
-
-  const ValidateRow = (row : RowData) : boolean => {
-
-    console.log(`Validating row: ${row.values.map((value) => value.value)}`);
-
-    let valid : boolean = true;
-
-    row.values.map((value, index) => {
-      if (value.value == constant.value[index]) value.state = CorrectState.correct;
-      else if (constant.value.search(value.value) !== -1) 
-      {
-        value.state = CorrectState.close;
-        valid = false;
-      }
-      else 
-      {
-        value.state = CorrectState.incorrect;
-        valid = false;
-      }
-    });
-
-    return valid;
-  }
 
   const MoveTypingRowUp = () => {
     
@@ -101,17 +116,21 @@ function App() {
 
   const handleKeyboardKeyPress = (event: any) => {
 
-    if (event.key === 'Backspace')
+    let key = event.key;
+
+    if (key === 'Backspace')
     {
       setCurrentPos(currentPos =>currentPos > -1 ? currentPos - 1 : currentPos);
       setValuetoSet("_backspace_");
       return;
     }
 
-    if (!IsValidInputKey(event.key)) return;
+    if (!IsValidInputKey(key)) return;
+
+    if (key === ',') key = '.';
 
     setCurrentPos(currentPos => currentPos + 1);
-    setValuetoSet(event.key);
+    setValuetoSet(key);
   };
 
   useEffect(() => {
@@ -163,7 +182,7 @@ function App() {
       <p>It is like wordle, only a bit worse and for mathematical constants</p>
 
       <div className="rows-wrapper" style={rWrapperCountStyle}>
-        {rowData[rowData.length - 1].state === RowState.typing ? <p>Type your constant and hope for the best :)</p> : <> </>}
+        {rowData[rowData.length - 1].state === RowState.typing ? <p className='type-text'>Type your constant and hope for the best :)</p> : <> </>}
         {rowData.map((row_, index) => Row(row_, index, rowData.length + 1 - GetRowStyleId(row_, index, state), currentPos) )}
       </div>
     </div>

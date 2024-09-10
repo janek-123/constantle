@@ -14,7 +14,7 @@
   margin-top: 2em;
 
   /* 2 positions are used for spaces */
-  width: calc(4 * (60px + 1em) - 1em);
+  width: calc(var(--widthCount) * (60px + 1em) - 1em);
   height: calc((var(--count) + 2) * (60px + 1em) - 1em);
 }
 
@@ -179,4 +179,27 @@ h1 + p
   display: block;
   margin: auto;
   margin-top: 1em;
+}
+
+.type-text
+{
+  animation: float-anim 2s infinite;
+}
+
+@keyframes float-anim
+{
+  0%
+  {
+    transform: translateY(0);
+  }
+
+  50%
+  {
+    transform: translateY(0.25em);
+  }
+
+  100%
+  {
+    transform: translateY(0);
+  }
 }
