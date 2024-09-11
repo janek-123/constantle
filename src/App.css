@@ -44,6 +44,13 @@
   border-radius: var(--radius);
 }
 
+.num-disp--filled
+{
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
 .num-disp--typing
 {
   border: #94DEFF 1px solid;
@@ -67,7 +74,8 @@
 
 .num-disp p
 {
-  margin: 0;
+  margin: 0;  
+  font-weight: 400;
 }
 
 h1
@@ -215,5 +223,5 @@ h1 + p
   left: 50%;
   transform: translate(-50%, -50%);
 
-  /* opacity: 0; disabled for debug */
+  opacity: 0;
 }

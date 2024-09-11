@@ -4,7 +4,7 @@ import { CorrectState, RowData, RowState, NewEmptyRowData } from './Models';
 import { Row } from './Typer';
 import { IsValidInputKey } from './Utils';
 import { LooseScreen } from './LooseScreen';
-import { constants, Constant } from './Constants';
+import { Constant, GetRandomConstant } from './Constants';
 
 // digit count you need to guess
 export const length = 4;
@@ -12,8 +12,7 @@ export const rowCount = 5;
 
 // row data is inversed: 1st row is the last row
 let rowData : RowData[] = NewEmptyRowData();
-
-let constant : Constant = constants[Math.floor(Math.random() * constants.length)];
+let constant : Constant = GetRandomConstant();
 
 enum GameStatus {
   won,
@@ -23,12 +22,15 @@ enum GameStatus {
 
 function ValidateRow(row : RowData) : boolean 
 {
-  console.log(`Validating row: ${row.values.map((value) => value.value)}`);
+  //console.log(`Validating row: ${row.values.map((value) => value.value)}`);
 
   let valid : boolean = true;
 
   row.values.map((value, index) => {
-    if (value.value == constant.value[index]) value.state = CorrectState.correct;
+    if (value.value == constant.value[index])
+    {
+      value.state = CorrectState.correct;
+    }
     else if (constant.value.slice(0, length).search(value.value) !== -1) 
     {
       value.state = CorrectState.close;
@@ -82,22 +84,20 @@ function App() {
   const [valuetoSet, setValuetoSet] = useState("");
 
   const handleKeyboardKeyPress = (event: any) => {
-
     if (hiddenInputRef.current && hiddenInputRef.current === document.activeElement) return;
     HandleInput(event.key);
   };
 
   const HandleInput = (key : string) => {
-    console.log("Handling input: " + key);
 
     if (key === 'Backspace')
     {
-      setCurrentPos(currentPos =>currentPos > -1 ? currentPos - 1 : currentPos);
+      setCurrentPos(currentPos => currentPos > -1 ? currentPos - 1 : currentPos);
       setValuetoSet("_backspace_");
       return;
     }
 
-    if (!IsValidInputKey(key)) return;
+    if (currentPos === length - 1 || !IsValidInputKey(key)) return;
 
     if (key === ',') key = '.';
 
@@ -122,9 +122,19 @@ function App() {
     }
 
     if (currentPos == rowData[0].values.length - 1)
-    {      
-      setCurrentPos(-1);
-      MoveTypingRowUp();
+    {
+      let cId = rowData.length - 1;
+
+      while (rowData[cId].state !== RowState.typing) cId -= 1;
+
+      if (IsValidConstant(rowData[cId]))
+      {
+        setCurrentPos(-1);
+        MoveTypingRowUp();
+      }
+      else {
+        alert("Please enter a valid constant, well any valid number actually");
+      }
     }
 
     setStatesdds(statesdds + 1);
@@ -142,13 +152,10 @@ function App() {
   const ResetGame = () => {
     setGameStatus(GameStatus.playing);
     rowData = NewEmptyRowData();
-    constant = constants[Math.floor(Math.random() * constants.length)];
+    constant = GetRandomConstant();
   }
 
   const HandleWrapperClick = () => {
-
-    console.log('click');
-
     hiddenInputRef.current?.focus();
   }
 
@@ -167,7 +174,6 @@ function App() {
     hiddenInputRef.current!.value = '';
   }
 
-
   const hiddenInputRef = useRef<HTMLInputElement>(null);
 
   const g = gameStatus == GameStatus.playing ? '' : 'game--over';
@@ -175,26 +181,53 @@ function App() {
   return (
     <div className={'game ' + g}>
       {LooseScreen(gameStatus == GameStatus.won, gameStatus == GameStatus.playing, ResetGame, constant)}
-      <h1>Constantle</h1>
-      <p>It is like wordle, only a bit worse and for mathematical constants</p>
-      <input
-          inputMode="decimal"
-          ref={hiddenInputRef}
-          className="hidden-input"
-          autoComplete="off"
-          autoCorrect="off"
-          spellCheck="false"
-          autoCapitalize="off"
-          onInput={HandleInputChange}
-          onKeyDown={HandleKeyDown}
-          
-        />
+      <WordleHeader/>
+      {HiddentInput(hiddenInputRef, HandleInputChange, HandleKeyDown)}
 
       <div className="rows-wrapper" style={rWrapperCountStyle} onClick={HandleWrapperClick}>
         {rowData[rowData.length - 1].state === RowState.typing ? <p className='type-text'>Type your constant and hope for the best :)</p> : <> </>}
         {rowData.map((row_, index) => Row(row_, index, rowData.length + 1 - GetRowStyleId(row_, index, state), currentPos) )}
       </div>
     </div>
+  )
+}
+
+// TODO: actually implement this
+function IsValidConstant(row : RowData) : boolean
+{
+  // return if there is max 1 dot
+  let dotCount = row.values.map((value) => value.value).join('').split('.').length - 1;
+
+  return dotCount <= 1;
+}
+
+function WordleHeader()
+{
+  return (
+    <>
+      <h1>Constantle</h1>
+      <p>It is like wordle, only a bit worse and for mathematical constants</p>
+    </>
+  )
+}
+
+function HiddentInput(
+  hiddenInputRef : React.RefObject<HTMLInputElement>,
+  HandleInputChange : React.FormEventHandler<HTMLInputElement>,
+  HandleKeyDown : React.KeyboardEventHandler<HTMLInputElement>
+) {
+  return (
+    <input
+      inputMode="decimal"
+      ref={hiddenInputRef}
+      className="hidden-input"
+      autoComplete="off"
+      autoCorrect="off"
+      spellCheck="false"
+      autoCapitalize="off"
+      onInput={HandleInputChange}
+      onKeyDown={HandleKeyDown}
+    />
   )
 }
 

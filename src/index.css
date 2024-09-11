@@ -19,6 +19,11 @@
   --radius: 8px;
 }
 
+p
+{
+  font-weight: 300;
+}
+
 a {
   font-weight: 500;
   color: #646cff;

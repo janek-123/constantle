@@ -4,6 +4,11 @@ export interface Constant {
   description: string[]
 }
 
+export function GetRandomConstant() : Constant
+{
+  return constants[Math.floor(Math.random() * constants.length)];
+}
+
 function NewConstant(value : string, name : string, description : string[]) : Constant
 {
   return { value, name, description }

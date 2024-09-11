@@ -15,8 +15,10 @@ function RowValue(value : RowValueData, id : number, typing : boolean)
 {
   const typingClass = typing ? 'num-disp--typing' : '';
 
+  const valueClass = value.value !== '_' ? 'num-disp--filled' : '';
+
   return(
-    <div className={`num-disp ${typingClass} ${StateToClass(value.state)}`} key={id}>
+    <div className={`num-disp ${valueClass} ${typingClass} ${StateToClass(value.state)}`} key={id}>
       <p>{value.value}</p>
     </div>
   )
