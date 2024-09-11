@@ -1,44 +1,17 @@
 import './App.css'
-import { useEffect, useState } from 'react';
-import { CorrectState, RowData, RowValueData, RowState } from './Models';
+import { ChangeEvent, useEffect, useRef, useState } from 'react';
+import { CorrectState, RowData, RowState, NewEmptyRowData } from './Models';
 import { Row } from './Typer';
 import { IsValidInputKey } from './Utils';
 import { LooseScreen } from './LooseScreen';
 import { constants, Constant } from './Constants';
 
-function RowVal(value : string = '_', state : CorrectState = CorrectState.undefined) : RowValueData
-{
-  return {value: value, state: state};
-}
-
 // digit count you need to guess
-const length = 4;
+export const length = 4;
+export const rowCount = 5;
 
 // row data is inversed: 1st row is the last row
-let rowData : RowData[] = NewRowData();
-
-function NewRowValues() : RowValueData[]
-{
-  let values : RowValueData[] = [];
-
-  for (let i = 0; i < length; i++)
-  {
-    values.push(RowVal());
-  }
-
-  return values;
-}
-
-function NewRowData() : RowData[]
-{
-  return [
-    {values: NewRowValues(), state: RowState.untouched},
-    {values: NewRowValues(), state: RowState.untouched},
-    {values: NewRowValues(), state: RowState.untouched},
-    {values: NewRowValues(), state: RowState.untouched},
-    {values: NewRowValues(), state: RowState.typing},
-  ]
-}
+let rowData : RowData[] = NewEmptyRowData();
 
 let constant : Constant = constants[Math.floor(Math.random() * constants.length)];
 
@@ -116,8 +89,17 @@ function App() {
 
   const handleKeyboardKeyPress = (event: any) => {
 
+    if (hiddenInputRef.current && hiddenInputRef.current === document.activeElement)
+    {
+      return;
+    }
+
     let key = event.key;
 
+    HandleInput(key);
+  };
+
+  const HandleInput = (key : string) => {
     if (key === 'Backspace')
     {
       setCurrentPos(currentPos =>currentPos > -1 ? currentPos - 1 : currentPos);
@@ -131,7 +113,7 @@ function App() {
 
     setCurrentPos(currentPos => currentPos + 1);
     setValuetoSet(key);
-  };
+  }
 
   useEffect(() => {
     for (let i = 0; i < rowData.length; i++)
@@ -171,17 +153,41 @@ function App() {
 
   const ResetGame = () => {
     setGameStatus(GameStatus.playing);
-    rowData = NewRowData();
+    rowData = NewEmptyRowData();
     constant = constants[Math.floor(Math.random() * constants.length)];
   }
+
+  const HandleWrapperClick = (event: any) => {
+    hiddenInputRef.current?.focus();
+  }
+
+  const HandleInputChange = (input : React.KeyboardEvent<HTMLInputElement>) => {
+    HandleInput(input.key);
+
+    hiddenInputRef.current!.value = '';
+  }
+
+  const hiddenInputRef = useRef<HTMLInputElement>(null);
 
   return (
     <div className={'game ' + g}>
       {LooseScreen(gameStatus == GameStatus.won, gameStatus == GameStatus.playing, ResetGame, constant)}
       <h1>Constantle</h1>
       <p>It is like wordle, only a bit worse and for mathematical constants</p>
+      <form>
+      <input
+          inputMode="decimal"
+          ref={hiddenInputRef}
+          className="hidden-input"
+          autoComplete="off"
+          autoCorrect="off"
+          spellCheck="false"
+          autoCapitalize="off"
+          onKeyDown={HandleInputChange}
+        />
+      </form>
 
-      <div className="rows-wrapper" style={rWrapperCountStyle}>
+      <div className="rows-wrapper" style={rWrapperCountStyle} onClick={HandleWrapperClick}>
         {rowData[rowData.length - 1].state === RowState.typing ? <p className='type-text'>Type your constant and hope for the best :)</p> : <> </>}
         {rowData.map((row_, index) => Row(row_, index, rowData.length + 1 - GetRowStyleId(row_, index, state), currentPos) )}
       </div>

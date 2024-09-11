@@ -1,3 +1,5 @@
+import { length, rowCount } from "./App";
+
 export enum RowState
 {
   untouched,
@@ -8,6 +10,32 @@ export enum RowState
 export interface RowData {
   values: RowValueData[],
   state: RowState
+}
+
+export function NewEmptyRowData() : RowData[]
+{
+  let data : RowData[] = [];
+
+  for (let i = 0; i < rowCount; i++)
+  {
+    if (i === rowCount - 1)
+    {
+      data.push({values: NewEmptyRowValues(), state: RowState.typing});
+      continue;
+    }
+
+    data.push({values: NewEmptyRowValues(), state: RowState.untouched});
+  }
+
+  return data;
+
+  /*return [
+    {values: NewEmptyRowValues(), state: RowState.untouched},
+    {values: NewEmptyRowValues(), state: RowState.untouched},
+    {values: NewEmptyRowValues(), state: RowState.untouched},
+    {values: NewEmptyRowValues(), state: RowState.untouched},
+    {values: NewEmptyRowValues(), state: RowState.typing},
+  ]*/
 }
 
 export enum CorrectState
@@ -22,4 +50,19 @@ export interface RowValueData
 {
   value: string,
   state: CorrectState
+}
+
+function NewEmptyRowValues() : RowValueData[]
+{
+  let values : RowValueData[] = [];
+
+  for (let i = 0; i < length; i++)
+    values.push(NewEmptyRowVal());
+
+  return values;
+}
+
+function NewEmptyRowVal() : RowValueData
+{
+  return {value: '_', state: CorrectState.undefined};
 }
