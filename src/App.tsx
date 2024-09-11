@@ -88,6 +88,8 @@ function App() {
   };
 
   const HandleInput = (key : string) => {
+    console.log("Handling input: " + key);
+
     if (key === 'Backspace')
     {
       setCurrentPos(currentPos =>currentPos > -1 ? currentPos - 1 : currentPos);
@@ -150,11 +152,21 @@ function App() {
     hiddenInputRef.current?.focus();
   }
 
-  const HandleInputChange = (input : React.KeyboardEvent<HTMLInputElement>) => {
+  const HandleInputChange: React.FormEventHandler<HTMLInputElement> = () => {
+    HandleInput(hiddenInputRef.current!.value);
+  
+    hiddenInputRef.current!.value = '';
+  }
+
+  const HandleKeyDown = (input : React.KeyboardEvent<HTMLInputElement>) => {
+    
+    if (input.key !== 'Backspace') return;
+
     HandleInput(input.key);
 
     hiddenInputRef.current!.value = '';
   }
+
 
   const hiddenInputRef = useRef<HTMLInputElement>(null);
 
@@ -173,7 +185,9 @@ function App() {
           autoCorrect="off"
           spellCheck="false"
           autoCapitalize="off"
-          onKeyDown={HandleInputChange}
+          onInput={HandleInputChange}
+          onKeyDown={HandleKeyDown}
+          
         />
 
       <div className="rows-wrapper" style={rWrapperCountStyle} onClick={HandleWrapperClick}>
