@@ -1,5 +1,5 @@
 import './App.css'
-import { ChangeEvent, useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { CorrectState, RowData, RowState, NewEmptyRowData } from './Models';
 import { Row } from './Typer';
 import { IsValidInputKey } from './Utils';
@@ -71,14 +71,8 @@ function App() {
     }
     else
     {
-      if (cId !== 0)
-      {
-        rowData[cId - 1].state = RowState.typing;
-      }    
-      else 
-      {
-        setGameStatus(GameStatus.lost);
-      }
+      if (cId !== 0) rowData[cId - 1].state = RowState.typing;
+      else setGameStatus(GameStatus.lost);
     } 
 
     setStatesdds(statesdds + 1);
@@ -89,14 +83,8 @@ function App() {
 
   const handleKeyboardKeyPress = (event: any) => {
 
-    if (hiddenInputRef.current && hiddenInputRef.current === document.activeElement)
-    {
-      return;
-    }
-
-    let key = event.key;
-
-    HandleInput(key);
+    if (hiddenInputRef.current && hiddenInputRef.current === document.activeElement) return;
+    HandleInput(event.key);
   };
 
   const HandleInput = (key : string) => {
@@ -149,15 +137,16 @@ function App() {
     };
   }, []);
 
-  const g = gameStatus == GameStatus.playing ? '' : 'game--over';
-
   const ResetGame = () => {
     setGameStatus(GameStatus.playing);
     rowData = NewEmptyRowData();
     constant = constants[Math.floor(Math.random() * constants.length)];
   }
 
-  const HandleWrapperClick = (event: any) => {
+  const HandleWrapperClick = () => {
+
+    console.log('click');
+
     hiddenInputRef.current?.focus();
   }
 
@@ -169,12 +158,13 @@ function App() {
 
   const hiddenInputRef = useRef<HTMLInputElement>(null);
 
+  const g = gameStatus == GameStatus.playing ? '' : 'game--over';
+
   return (
     <div className={'game ' + g}>
       {LooseScreen(gameStatus == GameStatus.won, gameStatus == GameStatus.playing, ResetGame, constant)}
       <h1>Constantle</h1>
       <p>It is like wordle, only a bit worse and for mathematical constants</p>
-      <form>
       <input
           inputMode="decimal"
           ref={hiddenInputRef}
@@ -185,7 +175,6 @@ function App() {
           autoCapitalize="off"
           onKeyDown={HandleInputChange}
         />
-      </form>
 
       <div className="rows-wrapper" style={rWrapperCountStyle} onClick={HandleWrapperClick}>
         {rowData[rowData.length - 1].state === RowState.typing ? <p className='type-text'>Type your constant and hope for the best :)</p> : <> </>}

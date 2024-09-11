@@ -28,14 +28,6 @@ export function NewEmptyRowData() : RowData[]
   }
 
   return data;
-
-  /*return [
-    {values: NewEmptyRowValues(), state: RowState.untouched},
-    {values: NewEmptyRowValues(), state: RowState.untouched},
-    {values: NewEmptyRowValues(), state: RowState.untouched},
-    {values: NewEmptyRowValues(), state: RowState.untouched},
-    {values: NewEmptyRowValues(), state: RowState.typing},
-  ]*/
 }
 
 export enum CorrectState

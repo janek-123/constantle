@@ -101,9 +101,6 @@ h1 + p
   overflow: hidden;
 
   z-index: -1;
-
-  /*background-color: rgba(0, 0, 0, 0.25);
-  z-index: 999;*/
 }
 
 .loose-screen > p
@@ -171,6 +168,11 @@ h1 + p
   margin-left: calc(-100vw - 452px);
 }
 
+.game--over .loose-screen-wrapper
+{
+  z-index: 999;
+}
+
 .game--over .loose-screen
 {
   left: 50%;
@@ -204,4 +206,14 @@ h1 + p
   {
     transform: translateY(0);
   }
+}
+
+.hidden-input
+{
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+
+  opacity: 0;
 }
