@@ -1,6 +1,7 @@
-import { Constant } from "./Constants";
-import { GameStatus } from './App';
+import { Constant } from "../Constants";
+import { GameStatus } from '../App';
 import { FC } from "react";
+import { length } from '../App';
 
 type LooseScreenProps = {
   status : GameStatus,
@@ -19,7 +20,7 @@ export const LooseScreen : FC<LooseScreenProps> = ({status, onPlayAgain, constan
         <p>{a}</p> 
         <p className="loose-screen__header__big">{b}</p>
       </div>
-      <p>The correct answer was {constant.name}</p>
+      <p>The correct answer was {constant.value.slice(0, length)}</p>
       {constant.description.map((d, i) => <p key={i} className="loose-screen__description">{d}</p>)}
       <button className="play-again-button" onClick={onPlayAgain}>Play again</button>
     </>

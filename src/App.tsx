@@ -1,18 +1,17 @@
 import './App.css'
 import { useEffect, useRef, useState } from 'react';
-import { CorrectState, RowData, RowState, NewEmptyRowData } from './Models';
+import { RowData, RowState, NewEmptyRowData } from './Models';
 import { Row } from './Typer';
 import { IsValidInputKey } from './Utils';
-import { LooseScreen } from './LooseScreen';
+import { LooseScreen } from './components/LooseScreen';
 import { Constant, GetRandomConstant } from './Constants';
 import { HiddentInput } from './components/HiddenInput';
+import { IsValidConstant, ValidateRow } from './Validator';
 
 // digit count you need to guess
 export const length = 4;
 export const rowCount = 5;
 
-// row data is inversed: 1st row is the last row
-let rowData : RowData[] = NewEmptyRowData();
 let constant : Constant = GetRandomConstant();
 
 export enum GameStatus {
@@ -21,44 +20,11 @@ export enum GameStatus {
   playing
 }
 
-function ValidateRow(row : RowData) : boolean 
-{
-  //console.log(`Validating row: ${row.values.map((value) => value.value)}`);
-
-  let valid : boolean = true;
-
-  row.values.map((value, index) => {
-    if (value.value == constant.value[index])
-    {
-      value.state = CorrectState.correct;
-    }
-    else if (constant.value.slice(0, length).search(value.value) !== -1) 
-    {
-      value.state = CorrectState.close;
-      valid = false;
-    }
-    else 
-    {
-      value.state = CorrectState.incorrect;
-      valid = false;
-    }
-  });
-
-  return valid;
-}
-
 function App() {
-
-  // this state is used to force re-render
-  const [statesdds, setStatesdds] = useState(0);
+  // row data is inversed: 1st row is the last row
+  const [rowData, setRowData] = useState(NewEmptyRowData());
 
   const [gameStatus, setGameStatus] = useState(GameStatus.playing);
-
-  const rWrapperCountStyle: React.CSSProperties = { '--count': rowData.length, "--widthCount": length } as any;
-
-  // 1 means space 1 was added, 2 means both space 1 and space 2 was added
-  // I need refference, thus it is wrapped in array
-  let state = [0];
 
   const MoveTypingRowUp = () => {
     
@@ -68,17 +34,20 @@ function App() {
 
     rowData[cId].state = RowState.typed;
 
-    if (ValidateRow(rowData[cId]))
+    if (ValidateRow(rowData[cId], constant))
     {
       setGameStatus(GameStatus.won);
+      hiddenInputRef.current?.blur();
     }
     else
     {
       if (cId !== 0) rowData[cId - 1].state = RowState.typing;
-      else setGameStatus(GameStatus.lost);
-    } 
-
-    setStatesdds(statesdds + 1);
+      else
+      {
+        setGameStatus(GameStatus.lost);
+        hiddenInputRef.current?.blur();
+      }
+    }
   }
 
   const [currentPos, setCurrentPos] = useState(-1);
@@ -113,12 +82,19 @@ function App() {
       
       if (valuetoSet === "_backspace_")
       {
-        rowData[i].values[currentPos + 1].value = '_';
-        console.log(currentPos + 1);
+        setRowData(rowData => {
+          const newRowData = [...rowData];
+          newRowData[i].values[currentPos + 1].value = '_';
+          return newRowData;
+        });
       }
       else if (currentPos != -1)
       {
-        rowData[i].values[currentPos].value = valuetoSet;
+        setRowData(rowData => {
+          const newRowData = [...rowData];
+          newRowData[i].values[currentPos].value = valuetoSet;
+          return newRowData;
+        });
       }
     }
 
@@ -134,11 +110,9 @@ function App() {
         MoveTypingRowUp();
       }
       else {
-        alert("Please enter a valid constant, well any valid number actually");
+        alert("Constant has to have exactly one decimal point");
       }
     }
-
-    setStatesdds(statesdds + 1);
 
   }, [currentPos]);
   
@@ -152,12 +126,8 @@ function App() {
 
   const ResetGame = () => {
     setGameStatus(GameStatus.playing);
-    rowData = NewEmptyRowData();
+    setRowData(NewEmptyRowData());
     constant = GetRandomConstant();
-  }
-
-  const HandleWrapperClick = () => {
-    hiddenInputRef.current?.focus();
   }
 
   const HandleInputChange: React.FormEventHandler<HTMLInputElement> = () => {
@@ -179,27 +149,35 @@ function App() {
 
   const gameOverClass = gameStatus == GameStatus.playing ? '' : ' game--over';
 
+  const HandleWrapperClick = () => {
+    hiddenInputRef.current?.focus();
+  }
+
   return (
     <div className={'game' + gameOverClass}>
       <LooseScreen status={gameStatus} onPlayAgain={ResetGame} constant={constant} />
       <WordleHeader/>
       <HiddentInput hiddenInputRef={hiddenInputRef} HandleInputChange={HandleInputChange} HandleKeyDown={HandleKeyDown} />
 
-      <div className="rows-wrapper" style={rWrapperCountStyle} onClick={HandleWrapperClick}>
-        {rowData[rowData.length - 1].state === RowState.typing ? <p className='type-text'>Type your constant and hope for the best :)</p> : <> </>}
-        {rowData.map((row_, index) => Row(row_, index, rowData.length + 1 - GetRowStyleId(row_, index, state), currentPos) )}
-      </div>
+      {PlayingField(HandleWrapperClick, currentPos, rowData)}
     </div>
   )
 }
 
-// TODO: actually implement this
-function IsValidConstant(row : RowData) : boolean
+const PlayingField = (HandleWrapperClick :  () => void, currentPos : number, rowData : RowData[]) =>
 {
-  // return if there is max 1 dot
-  let dotCount = row.values.map((value) => value.value).join('').split('.').length - 1;
+  const rWrapperCountStyle: React.CSSProperties = { '--count': rowData.length, "--widthCount": length } as any;
 
-  return dotCount <= 1;
+  // 1 means space 1 was added, 2 means both space 1 and space 2 was added
+  // I need refference, thus it is wrapped in array
+  let state = [0];
+
+  return (
+    <div className="rows-wrapper" style={rWrapperCountStyle} onClick={HandleWrapperClick}>
+      {rowData[rowData.length - 1].state === RowState.typing ? <p className='type-text'>Type your constant and hope for the best :)</p> : <> </>}
+      {rowData.map((row_, index) => Row(row_, index, rowData.length + 1 - GetRowStyleId(row_, index, state), currentPos) )}
+    </div>
+  )
 }
 
 const WordleHeader = () =>
