@@ -14,6 +14,8 @@ function NewConstant(value : string, name : string, description : string[]) : Co
   return { value, name, description }
 }
 
+// https://planetmath.org/indexofimportantirrationalconstants
+
 export const constants : Constant[] = [
   NewConstant("3.141", "Pi", 
     [

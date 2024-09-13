@@ -1,9 +1,17 @@
 import { Constant } from "./Constants";
+import { GameStatus } from './App';
+import { FC } from "react";
 
-export function LooseScreen(correct : boolean, playing : boolean, onPlayAgain : () => void, constant : Constant)
+type LooseScreenProps = {
+  status : GameStatus,
+  onPlayAgain : () => void,
+  constant : Constant
+}
+
+export const LooseScreen : FC<LooseScreenProps> = ({status, onPlayAgain, constant}) =>
 {
-  const a = correct ? 'You are absolutely' : 'Not even';
-  const b = correct ? 'CORRECT' : 'CLOSE';
+  const a = status == GameStatus.won ? 'You are absolutely' : 'Not even';
+  const b = status == GameStatus.won ? 'CORRECT' : 'CLOSE';
 
   const inner = (
     <>
@@ -20,7 +28,7 @@ export function LooseScreen(correct : boolean, playing : boolean, onPlayAgain : 
   return (
     <div className="loose-screen-wrapper">
       <div className="loose-screen">
-        {playing ? null : inner}
+        {status == GameStatus.playing ? null : inner}
       </div>
     </div>
   )

@@ -5,6 +5,7 @@ import { Row } from './Typer';
 import { IsValidInputKey } from './Utils';
 import { LooseScreen } from './LooseScreen';
 import { Constant, GetRandomConstant } from './Constants';
+import { HiddentInput } from './components/HiddenInput';
 
 // digit count you need to guess
 export const length = 4;
@@ -14,7 +15,7 @@ export const rowCount = 5;
 let rowData : RowData[] = NewEmptyRowData();
 let constant : Constant = GetRandomConstant();
 
-enum GameStatus {
+export enum GameStatus {
   won,
   lost,
   playing
@@ -176,13 +177,13 @@ function App() {
 
   const hiddenInputRef = useRef<HTMLInputElement>(null);
 
-  const g = gameStatus == GameStatus.playing ? '' : 'game--over';
+  const gameOverClass = gameStatus == GameStatus.playing ? '' : ' game--over';
 
   return (
-    <div className={'game ' + g}>
-      {LooseScreen(gameStatus == GameStatus.won, gameStatus == GameStatus.playing, ResetGame, constant)}
+    <div className={'game' + gameOverClass}>
+      <LooseScreen status={gameStatus} onPlayAgain={ResetGame} constant={constant} />
       <WordleHeader/>
-      {HiddentInput(hiddenInputRef, HandleInputChange, HandleKeyDown)}
+      <HiddentInput hiddenInputRef={hiddenInputRef} HandleInputChange={HandleInputChange} HandleKeyDown={HandleKeyDown} />
 
       <div className="rows-wrapper" style={rWrapperCountStyle} onClick={HandleWrapperClick}>
         {rowData[rowData.length - 1].state === RowState.typing ? <p className='type-text'>Type your constant and hope for the best :)</p> : <> </>}
@@ -201,33 +202,13 @@ function IsValidConstant(row : RowData) : boolean
   return dotCount <= 1;
 }
 
-function WordleHeader()
+const WordleHeader = () =>
 {
   return (
     <>
       <h1>Constantle</h1>
       <p>It is like wordle, only a bit worse and for mathematical constants</p>
     </>
-  )
-}
-
-function HiddentInput(
-  hiddenInputRef : React.RefObject<HTMLInputElement>,
-  HandleInputChange : React.FormEventHandler<HTMLInputElement>,
-  HandleKeyDown : React.KeyboardEventHandler<HTMLInputElement>
-) {
-  return (
-    <input
-      inputMode="decimal"
-      ref={hiddenInputRef}
-      className="hidden-input"
-      autoComplete="off"
-      autoCorrect="off"
-      spellCheck="false"
-      autoCapitalize="off"
-      onInput={HandleInputChange}
-      onKeyDown={HandleKeyDown}
-    />
   )
 }
 
