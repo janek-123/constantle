@@ -1,13 +1,12 @@
 #root {
-  max-width: 1280px;
-  margin: 0 auto;
-  padding: 2rem;
   text-align: center;
+  width: 100%;
 }
 
 .rows-wrapper
 {
-  margin: auto;
+  margin-left: auto;
+  margin-right: auto;
 
   position: relative;
 
@@ -168,12 +167,20 @@ h1 + p
 
 .game
 {
+  min-height: calc(100vh - 4rem - 4rem);
+
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+
+  padding: 2rem;
+
   transition: margin-left 0.5s;
 }
 
 .game--over
 {
-  margin-left: calc(-100vw - 452px);
+  margin-left: calc(-100vw - 489px);
 
   overflow: hidden;
   height: calc(100vh - 4rem);
@@ -227,4 +234,13 @@ h1 + p
   transform: translate(-50%, -50%);
 
   opacity: 0;
+}
+
+.github-link
+{
+  display: block;
+
+  color: rgba(255, 255, 255, 0.50);
+  font-weight: 300;
+  margin-top: 1em;
 }

@@ -97,7 +97,9 @@ function App() {
         });
       }
     }
+  }, [currentPos]);
 
+  useEffect(() => {
     if (currentPos == rowData[0].values.length - 1)
     {
       let cId = rowData.length - 1;
@@ -113,8 +115,7 @@ function App() {
         alert("Constant has to have exactly one decimal point");
       }
     }
-
-  }, [currentPos]);
+  }, [rowData]);
   
   useEffect(() => {
     window.addEventListener('keydown', handleKeyboardKeyPress);
@@ -154,13 +155,23 @@ function App() {
   }
 
   return (
-    <div className={'game' + gameOverClass}>
-      <LooseScreen status={gameStatus} onPlayAgain={ResetGame} constant={constant} />
-      <WordleHeader/>
-      <HiddentInput hiddenInputRef={hiddenInputRef} HandleInputChange={HandleInputChange} HandleKeyDown={HandleKeyDown} />
+    <>
+      <div className={'game' + gameOverClass}>
+        <LooseScreen status={gameStatus} onPlayAgain={ResetGame} constant={constant} />
+        <WordleHeader/>
+        <HiddentInput hiddenInputRef={hiddenInputRef} HandleInputChange={HandleInputChange} HandleKeyDown={HandleKeyDown} />
 
-      {PlayingField(HandleWrapperClick, currentPos, rowData)}
-    </div>
+        {PlayingField(HandleWrapperClick, currentPos, rowData)}      
+      </div>
+      <GithubLink />
+    </>
+  )
+}
+
+function GithubLink()
+{
+  return (
+    <a href="https://github.com/janek-123/constantle" target="_blank" className="github-link">Github</a>
   )
 }
 

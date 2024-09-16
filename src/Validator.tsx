@@ -39,6 +39,4 @@ export function IsValidConstant(row : RowData) : boolean
   }
 
   return dotCount == 1;
-
-  //return constants.map((constant) => constant.value.slice(0, length)).includes(value);
 }
