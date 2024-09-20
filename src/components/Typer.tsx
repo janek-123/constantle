@@ -1,6 +1,7 @@
 import { FC } from 'react';
 import { RowData, RowState } from '../Models';
 import { Row } from './Row';
+import { length } from '../App';
 
 type TyperProps = {
     HandleWrapperClick :  () => void, 
@@ -20,7 +21,7 @@ export const Typer : FC<TyperProps> = ({HandleWrapperClick, currentPos, rowData}
     <div className="rows-wrapper" style={rWrapperCountStyle} onClick={HandleWrapperClick}>
     {rowData[rowData.length - 1].state === RowState.typing ? <p className='type-text'>Type your constant and hope for the best :)</p> : <> </>}
     {rowData.map((row_, index) =>
-        <Row row={row_} id={index} styleId={rowData.length + 1 - GetRowStyleId(row_, index, state)} currentPos={currentPos} />
+      <Row key={index}row={row_} styleId={rowData.length + 1 - GetRowStyleId(row_, index, state)} currentPos={currentPos} />
     )}
     </div>
   )

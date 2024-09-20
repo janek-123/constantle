@@ -3,19 +3,18 @@ import { CorrectState, RowData, RowValueData, RowState } from '../Models';
 
 type RowProps = {
   row: RowData,
-  id: number,
   styleId : number,
   currentPos : number
 }
 
-export const Row : FC<RowProps> = ({row, id, styleId, currentPos}) =>
+export const Row : FC<RowProps> = ({row, styleId, currentPos}) =>
 {
   const rWrapperIdStyle: React.CSSProperties = { '--index': styleId } as any;
 
   return (
-    <div className='row' key={id} style={rWrapperIdStyle}>
+    <div className='row' style={rWrapperIdStyle}>
       {row.values.map((value, index) => 
-        <RowValue value={value} id={index} typing={row.state === RowState.typing && (index === currentPos + 1)}/>)
+        <RowValue key={index} value={value} typing={row.state === RowState.typing && (index === currentPos + 1)}/>)
       }
     </div>
   )
@@ -23,18 +22,17 @@ export const Row : FC<RowProps> = ({row, id, styleId, currentPos}) =>
 
 type RowValueProps = {
   value : RowValueData,
-  id : number,
   typing : boolean
 }
 
-const RowValue : FC<RowValueProps> = ({value, id, typing}) =>
+const RowValue : FC<RowValueProps> = ({value, typing}) =>
 {
   const typingClass = typing ? 'num-disp--typing' : '';
 
   const valueClass = value.value !== '_' ? 'num-disp--filled' : '';
 
   return(
-    <div className={`num-disp ${valueClass} ${typingClass} ${StateToClass(value.state)}`} key={id}>
+    <div className={`num-disp ${valueClass} ${typingClass} ${StateToClass(value.state)}`}>
       <p>{value.value}</p>
     </div>
   )
