@@ -1,12 +1,12 @@
 import './App.css'
 import { useEffect, useRef, useState } from 'react';
-import { RowData, RowState, NewEmptyRowData } from './Models';
-import { Row } from './Typer';
+import { RowState, NewEmptyRowData } from './Models';
 import { IsValidInputKey } from './Utils';
 import { LooseScreen } from './components/LooseScreen';
 import { Constant, GetRandomConstant } from './Constants';
 import { HiddentInput } from './components/HiddenInput';
 import { IsValidConstant, ValidateRow } from './Validator';
+import { Typer } from './components/Typer';
 
 // digit count you need to guess
 export const length = 4;
@@ -160,34 +160,10 @@ function App() {
         <LooseScreen status={gameStatus} onPlayAgain={ResetGame} constant={constant} />
         <WordleHeader/>
         <HiddentInput hiddenInputRef={hiddenInputRef} HandleInputChange={HandleInputChange} HandleKeyDown={HandleKeyDown} />
-
-        {PlayingField(HandleWrapperClick, currentPos, rowData)}      
+        <Typer HandleWrapperClick={HandleWrapperClick} currentPos={currentPos} rowData={rowData}/>
       </div>
-      <GithubLink />
+      <a href="https://github.com/janek-123/constantle" target="_blank" className="github-link">Github</a>
     </>
-  )
-}
-
-function GithubLink()
-{
-  return (
-    <a href="https://github.com/janek-123/constantle" target="_blank" className="github-link">Github</a>
-  )
-}
-
-const PlayingField = (HandleWrapperClick :  () => void, currentPos : number, rowData : RowData[]) =>
-{
-  const rWrapperCountStyle: React.CSSProperties = { '--count': rowData.length, "--widthCount": length } as any;
-
-  // 1 means space 1 was added, 2 means both space 1 and space 2 was added
-  // I need refference, thus it is wrapped in array
-  let state = [0];
-
-  return (
-    <div className="rows-wrapper" style={rWrapperCountStyle} onClick={HandleWrapperClick}>
-      {rowData[rowData.length - 1].state === RowState.typing ? <p className='type-text'>Type your constant and hope for the best :)</p> : <> </>}
-      {rowData.map((row_, index) => Row(row_, index, rowData.length + 1 - GetRowStyleId(row_, index, state), currentPos) )}
-    </div>
   )
 }
 
@@ -199,14 +175,6 @@ const WordleHeader = () =>
       <p>It is like wordle, only a bit worse and for mathematical constants</p>
     </>
   )
-}
-
-function GetRowStyleId(row : RowData, id: number, state : any[]) : number
-{
-  if (row.state === RowState.untouched || (row.state === RowState.typed && state[0] === 2)) return id + state[0];
-
-  state[0] += 1;  
-  return id + state[0]; 
 }
 
 export default App

@@ -1,17 +1,33 @@
-import { CorrectState, RowData, RowValueData, RowState } from './Models';
+import { FC } from 'react';
+import { CorrectState, RowData, RowValueData, RowState } from '../Models';
 
-export function Row(row : RowData, id : number, styleId : number, currentPos : number)
+type RowProps = {
+  row: RowData,
+  id: number,
+  styleId : number,
+  currentPos : number
+}
+
+export const Row : FC<RowProps> = ({row, id, styleId, currentPos}) =>
 {
   const rWrapperIdStyle: React.CSSProperties = { '--index': styleId } as any;
 
   return (
     <div className='row' key={id} style={rWrapperIdStyle}>
-      {row.values.map((value, index) => RowValue(value, index, row.state === RowState.typing && (index === currentPos + 1)))}
+      {row.values.map((value, index) => 
+        <RowValue value={value} id={index} typing={row.state === RowState.typing && (index === currentPos + 1)}/>)
+      }
     </div>
   )
 }
 
-function RowValue(value : RowValueData, id : number, typing : boolean)
+type RowValueProps = {
+  value : RowValueData,
+  id : number,
+  typing : boolean
+}
+
+const RowValue : FC<RowValueProps> = ({value, id, typing}) =>
 {
   const typingClass = typing ? 'num-disp--typing' : '';
 
